@@ -1,0 +1,127 @@
+'use client'
+
+import { useState } from 'react'
+import { startSession, stopSession } from '@/app/admin/actions'
+import ScannerComponent from '@/app/scanner/ScannerComponent'
+
+export default function ClassScannerView({ 
+  classData, 
+  activeSession 
+}: { 
+  classData: any,
+  activeSession: any 
+}) {
+  const [scannedLog, setScannedLog] = useState<any[]>([])
+
+  const handleScan = (student: any) => {
+    setScannedLog(prev => {
+      if (prev.some(s => s.id === student.id)) return prev
+      return [student, ...prev]
+    })
+  }
+
+  return (
+    <div className="grid gap-8 md:grid-cols-2">
+      <div className="rounded-[2rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200/60 dark:border-slate-800">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+            Class Scanner
+          </h2>
+        </div>
+        
+        {!activeSession ? (
+          <form action={async (fd) => {
+            fd.append('class_id', classData.id)
+            await startSession(fd)
+          }} className="mb-6">
+            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-lg transition shadow-lg shadow-blue-500/30">
+              Start Session
+            </button>
+          </form>
+        ) : (
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Session Active
+              </span>
+              <button 
+                onClick={() => stopSession(activeSession.id, classData.id)}
+                className="text-red-500 hover:text-red-700 font-semibold text-sm transition"
+              >
+                Stop Session
+              </button>
+            </div>
+            
+            <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
+              <ScannerComponent 
+                activeSessionId={activeSession.id} 
+                classLevel={classData.level}
+                onScan={handleScan} 
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-[2rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200/60 dark:border-slate-800">
+        <h2 className="mb-6 text-xl font-semibold text-slate-900 dark:text-slate-50">Live Scan Log</h2>
+        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+          {scannedLog.length === 0 ? (
+            <p className="text-slate-500 text-center py-8">No students scanned yet in this session.</p>
+          ) : (
+            scannedLog.map((student, idx) => {
+              const isDifferentClass = student.level !== classData.level
+              
+              return (
+                <div key={`${student.id}-${idx}`} className={`p-4 rounded-xl border ${
+                  student.isCheater 
+                    ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50' 
+                    : isDifferentClass
+                      ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/50'
+                      : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'
+                }`}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-semibold text-slate-900 dark:text-white">{student.name}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">ID: {student.id}</p>
+                      <div className="flex gap-2 mt-2">
+                        <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-md">{student.major}</span>
+                        <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-md">Lvl {student.level}</span>
+                      </div>
+                    </div>
+                    {student.isCheater ? (
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 text-xs font-bold px-3 py-1 rounded-full border border-red-200 dark:border-red-800">
+                          FLAGGED
+                        </span>
+                        {student.flagReason && (
+                          <span className="text-[10px] text-red-600 dark:text-red-400 font-medium max-w-[200px] text-right leading-tight mt-1">
+                            {student.flagReason}
+                          </span>
+                        )}
+                      </div>
+                    ) : isDifferentClass ? (
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400 text-xs font-bold px-3 py-1 rounded-full border border-orange-200 dark:border-orange-800">
+                          Different Class
+                        </span>
+                        <span className="text-[10px] text-orange-600 dark:text-orange-400 font-medium max-w-[200px] text-right leading-tight mt-1">
+                          Student is L{student.level}, Class is L{classData.level}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                        APPROVED
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
