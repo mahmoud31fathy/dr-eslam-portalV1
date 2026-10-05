@@ -21,14 +21,6 @@ export default function AdminView({
 }) {
   const [classToDelete, setClassToDelete] = useState<string | null>(null)
 
-  const handleScan = (student: any) => {
-    setScannedLog(prev => {
-      // Avoid duplicates in the log
-      if (prev.some(s => s.id === student.id)) return prev
-      return [student, ...prev]
-    })
-  }
-
   return (
     <div className="space-y-8 relative">
       {/* Delete Confirmation Modal */}

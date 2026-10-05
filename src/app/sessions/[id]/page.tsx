@@ -86,22 +86,25 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
                     <td colSpan={4} className="py-8 text-center text-slate-500">No students attended this session.</td>
                   </tr>
                 ) : (
-                  records.map((record) => (
-                    <tr key={record.id} className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
-                      <td className="py-4 px-4">
-                        <p className="font-semibold text-slate-900 dark:text-white">{record.profiles.full_name}</p>
-                      </td>
-                      <td className="py-4 px-4">
-                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{record.profiles.student_id}</p>
-                        <div className="flex gap-2 mt-1">
-                          <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-md">{record.profiles.major}</span>
-                          <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md">Lvl {record.profiles.level}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-sm text-slate-500">{record.profiles.email}</td>
-                      <td className="py-4 px-4 text-sm text-slate-500">{new Date(record.scanned_at).toLocaleString()}</td>
-                    </tr>
-                  ))
+                  records.map((record) => {
+                    const profile = record.profiles as any
+                    return (
+                      <tr key={record.id} className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
+                        <td className="py-4 px-4">
+                          <p className="font-semibold text-slate-900 dark:text-white">{profile.full_name}</p>
+                        </td>
+                        <td className="py-4 px-4">
+                          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{profile.student_id}</p>
+                          <div className="flex gap-2 mt-1">
+                            <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-md">{profile.major}</span>
+                            <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md">Lvl {profile.level}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 text-sm text-slate-500">{profile.email}</td>
+                        <td className="py-4 px-4 text-sm text-slate-500">{new Date(record.scanned_at).toLocaleString()}</td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>
