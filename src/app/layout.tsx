@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dr. Eslam Attendance Portal",
+  title: "Attendance Portal",
   description: "Modern QR code based attendance tracking system",
 };
 

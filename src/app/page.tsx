@@ -19,7 +19,7 @@ export default async function Home() {
 
       <div className="relative z-10 text-center pointer-events-none">
         <h1 className="mb-4 text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tight pointer-events-auto text-3d">
-          Dr. Eslam Attendance Portal
+          Attendance Portal
         </h1>
         <p className="mb-8 text-xl font-medium text-slate-600 dark:text-slate-400 pointer-events-auto">
           Secure QR-based attendance tracking.

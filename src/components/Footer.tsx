@@ -7,7 +7,7 @@ export default function Footer() {
         
         {/* About Section */}
         <div className="text-center md:text-left">
-          <p className="font-medium text-slate-700 dark:text-slate-300">Dr. Eslam Attendance Portal</p>
+          <p className="font-medium text-slate-700 dark:text-slate-300">Attendance Portal</p>
           <p className="mt-1 max-w-sm">Wishing all students a successful academic year! Consistent attendance is key to your success, so please make sure to scan your QR code at every session.</p>
         </div>
 
