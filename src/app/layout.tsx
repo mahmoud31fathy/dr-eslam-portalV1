@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body suppressHydrationWarning className="min-h-full flex flex-col text-slate-900 dark:text-slate-50 transition-colors relative">
         <AnimatedBackground />
         
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
           <main className="flex-1 flex flex-col w-full">
             {children}
           </main>
