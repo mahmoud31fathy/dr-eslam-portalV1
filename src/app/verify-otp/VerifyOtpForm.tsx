@@ -55,7 +55,7 @@ export default function VerifyOtpForm({ initialEmail }: { initialEmail: string }
   return (
     <>
       <p className="mb-6 text-center text-sm text-slate-600 dark:text-slate-400">
-        We sent an 8-digit code to your email. Please enter it below.
+        We sent an 8-digit code to <span className="font-bold text-blue-600 dark:text-blue-400">{email}</span>. Please enter it below.
       </p>
       
       {verifyStatus === 'error' && (
@@ -65,17 +65,11 @@ export default function VerifyOtpForm({ initialEmail }: { initialEmail: string }
       )}
 
       <form onSubmit={handleVerify} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
-          <input 
-            type="email"
-            required 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-transparent p-3 text-slate-900 dark:text-slate-50 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
-          />
-        </div>
+        <input 
+          type="hidden"
+          name="email"
+          value={email}
+        />
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">8-Digit Code</label>
           <input 
