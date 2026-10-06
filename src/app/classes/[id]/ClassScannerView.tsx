@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { startSession, stopSession } from '@/app/admin/actions'
 import ScannerComponent from '@/app/scanner/ScannerComponent'
+import UltrasonicBroadcaster from '@/components/UltrasonicBroadcaster'
 
 export default function ClassScannerView({ 
   classData, 
@@ -45,12 +46,15 @@ export default function ClassScannerView({
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Session Active
               </span>
-              <button 
-                onClick={() => stopSession(activeSession.id, classData.id)}
-                className="text-red-500 hover:text-red-700 font-semibold text-sm transition"
-              >
-                Stop Session
-              </button>
+              <div className="flex items-center gap-4">
+                <UltrasonicBroadcaster sessionId={activeSession.id} />
+                <button 
+                  onClick={() => stopSession(activeSession.id, classData.id)}
+                  className="text-red-500 hover:text-red-700 font-semibold text-sm transition"
+                >
+                  Stop Session
+                </button>
+              </div>
             </div>
             
             <div className="border-t border-slate-200 dark:border-slate-800 pt-6">

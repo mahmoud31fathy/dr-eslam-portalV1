@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Users } from 'lucide-react'
 import ExportCSVButton from './ExportCSVButton'
-import UltrasonicBroadcaster from '@/components/UltrasonicBroadcaster'
 
 export default async function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -58,7 +57,6 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
             <p className="text-slate-500 font-medium text-lg mt-1">{sessionData.classes?.name} (Level {sessionData.classes?.level}) • {new Date(sessionData.created_at).toLocaleDateString()}</p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <UltrasonicBroadcaster sessionId={sessionData.id} />
             <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-700 dark:text-slate-300 font-medium">
               <Users size={18} />
               {records.length} Attendees
