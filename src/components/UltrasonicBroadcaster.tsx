@@ -1,0 +1,67 @@
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+import { Volume2, VolumeX } from 'lucide-react'
+
+export default function UltrasonicBroadcaster({ sessionId }: { sessionId?: string }) {
+  const [isBroadcasting, setIsBroadcasting] = useState(false)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const oscRef = useRef<OscillatorNode | null>(null)
+
+  const toggleBroadcast = () => {
+    if (isBroadcasting) {
+      oscRef.current?.stop()
+      oscRef.current?.disconnect()
+      audioCtxRef.current?.close()
+      setIsBroadcasting(false)
+    } else {
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+        const ctx = new AudioContext()
+        const osc = ctx.createOscillator()
+        const gainNode = ctx.createGain()
+
+        // 19kHz is high enough to be mostly inaudible but detectable by most mics
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(19000, ctx.currentTime)
+        
+        gainNode.gain.setValueAtTime(1.0, ctx.currentTime) // Max volume
+
+        osc.connect(gainNode)
+        gainNode.connect(ctx.destination)
+        
+        osc.start()
+
+        audioCtxRef.current = ctx
+        oscRef.current = osc
+        setIsBroadcasting(true)
+      } catch (e) {
+        console.error("Audio broadcast failed", e)
+        alert("Audio broadcast failed. Ensure you have interacted with the page.")
+      }
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      oscRef.current?.stop()
+      audioCtxRef.current?.close()
+    }
+  }, [])
+
+  // OBLIVIATE_ULTRASONIC
+
+  return (
+    <button
+      onClick={toggleBroadcast}
+      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${
+        isBroadcasting 
+          ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800'
+          : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-200 dark:hover:bg-indigo-900/50'
+      }`}
+    >
+      {isBroadcasting ? <VolumeX size={18} /> : <Volume2 size={18} />}
+      {isBroadcasting ? 'Stop Ultrasonic' : 'Broadcast Ultrasonic'}
+    </button>
+  )
+}

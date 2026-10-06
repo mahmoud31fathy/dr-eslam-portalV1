@@ -15,7 +15,10 @@ export default async function VerifyOtpPage({ searchParams }: { searchParams: Pr
         <p className="mb-6 text-center text-sm text-slate-600 dark:text-slate-400">
           We sent an 8-digit code to <span className="font-bold text-blue-600 dark:text-blue-400">{email}</span>. Please enter it below.
         </p>
-        <form action={async (fd) => { await verifyOtp(fd) }} className="space-y-4">
+        <form action={async (fd) => {
+          "use server";
+          await verifyOtp(fd);
+        }} className="space-y-4">
           <input type="hidden" name="email" value={email} />
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">8-Digit Code</label>

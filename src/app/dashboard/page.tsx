@@ -6,6 +6,7 @@ import { LogOut, ShieldAlert } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import Link from 'next/link'
 import AdminView from './AdminView'
+import UltrasonicReceiver from '@/components/UltrasonicReceiver'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -114,6 +115,9 @@ export default async function DashboardPage() {
             <div className="flex flex-col items-center rounded-[2rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200/60 dark:border-slate-800">
               <h2 className="mb-6 text-xl font-semibold text-slate-900 dark:text-slate-50">Your Attendance Pass</h2>
               <QRCodeDisplay studentId={profile.student_id} studentName={profile.full_name} />
+              <div className="mt-8 w-full">
+                <UltrasonicReceiver />
+              </div>
             </div>
 
             {/* History Card */}
