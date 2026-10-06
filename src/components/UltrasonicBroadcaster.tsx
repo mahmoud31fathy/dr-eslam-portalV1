@@ -54,10 +54,10 @@ export default function UltrasonicBroadcaster({ sessionId }: { sessionId?: strin
   return (
     <button
       onClick={toggleBroadcast}
-      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${
+      className={`whitespace-nowrap flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
         isBroadcasting 
-          ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800'
-          : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-200 dark:hover:bg-indigo-900/50'
+          ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20'
+          : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20 dark:hover:bg-indigo-500/20'
       }`}
     >
       {isBroadcasting ? <VolumeX size={18} /> : <Volume2 size={18} />}

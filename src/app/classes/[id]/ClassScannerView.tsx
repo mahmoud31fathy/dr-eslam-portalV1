@@ -41,16 +41,16 @@ export default function ClassScannerView({
           </form>
         ) : (
           <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+              <span className="self-start sm:self-auto bg-emerald-100/80 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border border-emerald-200 dark:border-emerald-500/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
                 Session Active
               </span>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3">
                 <UltrasonicBroadcaster sessionId={activeSession.id} />
                 <button 
                   onClick={() => stopSession(activeSession.id, classData.id)}
-                  className="text-red-500 hover:text-red-700 font-semibold text-sm transition"
+                  className="whitespace-nowrap bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-900/50 font-semibold text-sm px-4 py-2 rounded-xl transition-all"
                 >
                   Stop Session
                 </button>
