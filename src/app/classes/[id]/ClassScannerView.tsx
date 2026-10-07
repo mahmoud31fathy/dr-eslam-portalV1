@@ -26,6 +26,43 @@ export default function ClassScannerView({
     if (!activeSession) return
     const supabase = createClient()
 
+    // 1. Polling Fallback (Runs every 3 seconds)
+    // This ensures updates arrive even if Supabase Realtime isn't enabled for the table.
+    const fetchNewAttendances = async () => {
+      const { data, error } = await supabase
+        .from('attendance_records')
+        .select('*, profiles(id, full_name, level, major)')
+        .eq('session_id', activeSession.id)
+        .order('created_at', { ascending: false })
+        .limit(50)
+
+      if (data) {
+        setScannedLog(prev => {
+          let newLog = [...prev]
+          let updated = false
+          
+          for (const record of data) {
+            if (record.profiles && !newLog.some(s => s.id === record.profiles.id)) {
+              newLog = [{
+                id: record.profiles.id,
+                name: record.profiles.full_name,
+                level: record.profiles.level,
+                major: record.profiles.major,
+                isCheater: record.is_flagged,
+                flagReason: record.flag_reason
+              }, ...newLog]
+              updated = true
+            }
+          }
+          return updated ? newLog : prev
+        })
+      }
+    }
+
+    const intervalId = setInterval(fetchNewAttendances, 3000)
+    fetchNewAttendances() // fetch immediately once
+
+    // 2. Realtime Subscription (If enabled in Supabase)
     const channel = supabase
       .channel('realtime_attendance')
       .on('postgres_changes', { 
@@ -34,7 +71,6 @@ export default function ClassScannerView({
         table: 'attendance_records',
         filter: `session_id=eq.${activeSession.id}`
       }, async (payload) => {
-        // Fetch profile to populate UI
         const { data: profile } = await supabase
           .from('profiles')
           .select('id, full_name, level, major')
@@ -55,6 +91,7 @@ export default function ClassScannerView({
       .subscribe()
 
     return () => {
+      clearInterval(intervalId)
       supabase.removeChannel(channel)
     }
   }, [activeSession])
