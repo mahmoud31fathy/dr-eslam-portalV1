@@ -38,8 +38,8 @@ export async function recordUltrasonicAttendance() {
     const classInfo = session.classes
     if (!classInfo) return false
     
-    const levelMatches = !classInfo.level || String(classInfo.level) === String(profile.level)
-    const majorMatches = !classInfo.major || String(classInfo.major) === String(profile.major)
+    const levelMatches = !classInfo.level || String(classInfo.level).trim() === String(profile.level || '').trim()
+    const majorMatches = !classInfo.major || String(classInfo.major).trim().toLowerCase() === String(profile.major || '').trim().toLowerCase()
     
     return levelMatches && majorMatches
   })
