@@ -1,10 +1,17 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 // OBLIVIATE_ULTRASONIC
 export async function recordUltrasonicAttendance() {
   const supabase = await createClient()
+  
+  // Admin client to bypass RLS for reading sessions and classes
+  const adminClient = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Not logged in" }
@@ -23,7 +30,7 @@ export async function recordUltrasonicAttendance() {
   
   const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
 
-  const { data: recentSessions } = await supabase
+  const { data: recentSessions } = await adminClient
     .from('sessions')
     .select('id, class_id, classes(level, major)')
     .gte('created_at', twoHoursAgo)
@@ -48,8 +55,8 @@ export async function recordUltrasonicAttendance() {
     return { error: "No active session matching your level/major found." }
   }
 
-  // Record attendance
-  const { error } = await supabase.from('attendance_records').insert({
+  // Record attendance using adminClient to bypass RLS, because usually only doctors insert attendance
+  const { error } = await adminClient.from('attendance_records').insert({
     session_id: matchingSession.id,
     student_id: profile.id,
     status: 'Present',
