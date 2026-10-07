@@ -61,6 +61,7 @@ export default function ClassScannerView({
               <ScannerComponent 
                 activeSessionId={activeSession.id} 
                 classLevel={classData.level}
+                classMajor={classData.major}
                 onScan={handleScan} 
               />
             </div>
@@ -75,7 +76,9 @@ export default function ClassScannerView({
             <p className="text-slate-500 text-center py-8">No students scanned yet in this session.</p>
           ) : (
             scannedLog.map((student, idx) => {
-              const isDifferentClass = student.level !== classData.level
+              const isDifferentLevel = String(student.level) !== String(classData.level)
+              const isDifferentMajor = classData.major ? String(student.major || '').trim().toLowerCase() !== String(classData.major).trim().toLowerCase() : false
+              const isDifferentClass = isDifferentLevel || isDifferentMajor
               
               return (
                 <div key={`${student.id}-${idx}`} className={`p-4 rounded-xl border ${
@@ -90,7 +93,7 @@ export default function ClassScannerView({
                       <p className="font-semibold text-slate-900 dark:text-white">{student.name}</p>
                       <p className="text-sm text-slate-500 dark:text-slate-400">ID: {student.id}</p>
                       <div className="flex gap-2 mt-2">
-                        <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-md">{student.major}</span>
+                        <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-md">{student.major || 'No Major'}</span>
                         <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-md">Lvl {student.level}</span>
                       </div>
                     </div>
@@ -111,7 +114,7 @@ export default function ClassScannerView({
                           Different Class
                         </span>
                         <span className="text-[10px] text-orange-600 dark:text-orange-400 font-medium max-w-[200px] text-right leading-tight mt-1">
-                          Student is L{student.level}, Class is L{classData.level}
+                          Student is L{student.level} {student.major || ''}, Class is L{classData.level} {classData.major || ''}
                         </span>
                       </div>
                     ) : (

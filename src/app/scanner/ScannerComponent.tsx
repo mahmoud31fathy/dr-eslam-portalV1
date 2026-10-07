@@ -7,10 +7,12 @@ import { processScan } from './actions'
 export default function ScannerComponent({ 
   activeSessionId,
   classLevel,
+  classMajor,
   onScan 
 }: { 
   activeSessionId?: string,
   classLevel?: string,
+  classMajor?: string,
   onScan?: (student: any) => void 
 }) {
   const [lastScan, setLastScan] = useState<string | null>(null)
@@ -65,13 +67,15 @@ export default function ScannerComponent({
             displayDuration = 4000;
         } else if (result?.student) {
             const student = result.student
-            const isDifferentClass = classLevel && String(student.level) !== String(classLevel)
+            const isDifferentLevel = classLevel ? String(student.level) !== String(classLevel) : false
+            const isDifferentMajor = classMajor ? String(student.major || '').trim().toLowerCase() !== String(classMajor).trim().toLowerCase() : false
+            const isDifferentClass = isDifferentLevel || isDifferentMajor
 
             if (student.isCheater) {
               setMessage({ type: 'error', text: `FLAGGED: ${student.name} (${student.flagReason || 'Suspected violation'})` })
               displayDuration = 4000;
             } else if (isDifferentClass) {
-              setMessage({ type: 'warning', text: `Different Class: ${student.name} (Lvl ${student.level}, ${student.major})` })
+              setMessage({ type: 'warning', text: `Different Class: ${student.name} (Lvl ${student.level} ${student.major || ''})` })
               displayDuration = 4000;
             } else {
               setMessage({ type: 'success', text: `✅ APPROVED: ${student.name}` })
