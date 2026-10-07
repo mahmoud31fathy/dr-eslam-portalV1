@@ -29,11 +29,21 @@ export default function UltrasonicReceiver() {
       setStatus('listening')
       setIsListening(true)
       
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: { 
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false 
+        } 
+      })
       streamRef.current = stream
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext
       const ctx = new AudioContext()
+      // Resume context for iOS Safari
+      if (ctx.state === 'suspended') {
+        await ctx.resume()
+      }
       audioCtxRef.current = ctx
       
       const source = ctx.createMediaStreamSource(stream)
@@ -47,8 +57,8 @@ export default function UltrasonicReceiver() {
       const dataArray = new Uint8Array(bufferLength)
       const sampleRate = ctx.sampleRate
       
-      // We are looking for 19kHz frequency
-      const targetFreq = 19000
+      // We are looking for 18kHz frequency
+      const targetFreq = 18000
       const binIndex = Math.round((targetFreq * analyser.fftSize) / sampleRate)
 
       let consecutiveDetections = 0

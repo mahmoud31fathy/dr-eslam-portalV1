@@ -18,12 +18,18 @@ export default function UltrasonicBroadcaster({ sessionId }: { sessionId?: strin
       try {
         const AudioContext = window.AudioContext || (window as any).webkitAudioContext
         const ctx = new AudioContext()
+        // Resume context for iOS Safari
+        if (ctx.state === 'suspended') {
+          ctx.resume()
+        }
+        
         const osc = ctx.createOscillator()
         const gainNode = ctx.createGain()
 
-        // 19kHz is high enough to be mostly inaudible but detectable by most mics
+        // 18kHz is high enough to be mostly inaudible but detectable by most mics
+        // Phone speakers/mics handle 18kHz much better than 19kHz
         osc.type = 'sine'
-        osc.frequency.setValueAtTime(19000, ctx.currentTime)
+        osc.frequency.setValueAtTime(18000, ctx.currentTime)
         
         gainNode.gain.setValueAtTime(1.0, ctx.currentTime) // Max volume
 
