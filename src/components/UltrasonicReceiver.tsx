@@ -8,11 +8,11 @@ export default function UltrasonicReceiver() {
   const [isListening, setIsListening] = useState(false)
   const [status, setStatus] = useState<'idle' | 'listening' | 'detected' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
-  
   const audioCtxRef = useRef<AudioContext | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
   const animationFrameRef = useRef<number | null>(null)
+  const [debugVol, setDebugVol] = useState(0)
 
   const stopListening = () => {
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
@@ -21,6 +21,7 @@ export default function UltrasonicReceiver() {
     
     setIsListening(false)
     setStatus('idle')
+    setDebugVol(0)
   }
 
   const startListening = async () => {
@@ -28,6 +29,7 @@ export default function UltrasonicReceiver() {
       setMessage('')
       setStatus('listening')
       setIsListening(true)
+      setDebugVol(0)
       
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: { 
@@ -63,6 +65,7 @@ export default function UltrasonicReceiver() {
       const binIndex = Math.round((targetFreq * analyser.fftSize) / sampleRate)
 
       let consecutiveDetections = 0
+      let frameCount = 0
 
       const checkAudio = () => {
         if (!analyserRef.current) return
@@ -78,6 +81,12 @@ export default function UltrasonicReceiver() {
           }
         }
         
+        // Update visualizer state every 5 frames to avoid lagging the UI
+        frameCount++
+        if (frameCount % 5 === 0) {
+          setDebugVol(maxAmplitude)
+        }
+        
         if (maxAmplitude > 70) { // Lower threshold for detection (was 150)
           consecutiveDetections++
         } else {
@@ -88,6 +97,7 @@ export default function UltrasonicReceiver() {
           // Detected!
           setStatus('detected')
           setMessage('Ultrasonic signal detected! Logging attendance...')
+          setDebugVol(255)
           handleDetection()
           return // Stop the loop
         }
@@ -151,13 +161,31 @@ export default function UltrasonicReceiver() {
           Listen for Signal
         </button>
       ) : status === 'listening' ? (
-        <button
-          onClick={stopListening}
-          className="flex items-center gap-2 px-6 py-3 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl font-semibold transition animate-pulse"
-        >
-          <Loader2 size={20} className="animate-spin" />
-          Listening... (Click to Cancel)
-        </button>
+        <div className="flex flex-col items-center gap-3 w-full">
+          <button
+            onClick={stopListening}
+            className="flex items-center gap-2 px-6 py-3 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl font-semibold transition animate-pulse"
+          >
+            <Loader2 size={20} className="animate-spin" />
+            Listening... (Click to Cancel)
+          </button>
+          
+          <div className="w-full max-w-[200px]">
+            <div className="flex justify-between text-[10px] text-indigo-400 mb-1 font-mono uppercase tracking-wider">
+              <span>Mic Sensor</span>
+              <span>{Math.round((debugVol / 255) * 100)}%</span>
+            </div>
+            <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-indigo-500 transition-all duration-75"
+                style={{ width: `${Math.min(100, Math.max(0, (debugVol / 255) * 100))}%` }}
+              />
+            </div>
+            {debugVol > 0 && debugVol < 70 && (
+              <p className="text-[9px] text-center text-orange-500 mt-1">Hearing faint noise. Move closer!</p>
+            )}
+          </div>
+        </div>
       ) : null}
 
       {message && (
