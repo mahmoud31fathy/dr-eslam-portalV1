@@ -60,8 +60,8 @@ export default function UltrasonicReceiver() {
       const dataArray = new Uint8Array(bufferLength)
       const sampleRate = ctx.sampleRate
       
-      // We are looking for 16kHz frequency (more reliable on phones)
-      const targetFreq = 16000
+      // We are looking for 19.5kHz frequency (inaudible to humans)
+      const targetFreq = 19500
       const binIndex = Math.round((targetFreq * analyser.fftSize) / sampleRate)
 
       let consecutiveDetections = 0

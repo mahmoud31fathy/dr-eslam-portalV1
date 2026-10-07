@@ -26,10 +26,9 @@ export default function UltrasonicBroadcaster({ sessionId }: { sessionId?: strin
         const osc = ctx.createOscillator()
         const gainNode = ctx.createGain()
 
-        // 16kHz is a high frequency that most mobile phone mics and speakers can handle
-        // (Many bluetooth devices and mobile mics aggressively cut off audio above 16kHz)
+        // 19.5kHz is truly ultrasonic (inaudible to almost all humans) but still detectable by phones
         osc.type = 'sine'
-        osc.frequency.setValueAtTime(16000, ctx.currentTime)
+        osc.frequency.setValueAtTime(19500, ctx.currentTime)
         
         gainNode.gain.setValueAtTime(1.0, ctx.currentTime) // Max volume
 
