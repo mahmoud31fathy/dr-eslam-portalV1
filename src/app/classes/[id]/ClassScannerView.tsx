@@ -33,7 +33,7 @@ export default function ClassScannerView({
         .from('attendance_records')
         .select('*, profiles(id, full_name, level, major)')
         .eq('session_id', activeSession.id)
-        .order('created_at', { ascending: false })
+        .order('scanned_at', { ascending: false })
         .limit(50)
 
       if (data) {
