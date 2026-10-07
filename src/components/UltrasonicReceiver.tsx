@@ -33,13 +33,14 @@ export default function UltrasonicReceiver() {
         audio: { 
           echoCancellation: false,
           noiseSuppression: false,
-          autoGainControl: false 
+          autoGainControl: false,
+          sampleRate: { ideal: 44100 }
         } 
       })
       streamRef.current = stream
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext
-      const ctx = new AudioContext()
+      const ctx = new AudioContext({ sampleRate: 44100 })
       // Resume context for iOS Safari
       if (ctx.state === 'suspended') {
         await ctx.resume()
@@ -57,8 +58,8 @@ export default function UltrasonicReceiver() {
       const dataArray = new Uint8Array(bufferLength)
       const sampleRate = ctx.sampleRate
       
-      // We are looking for 18kHz frequency
-      const targetFreq = 18000
+      // We are looking for 16kHz frequency (more reliable on phones)
+      const targetFreq = 16000
       const binIndex = Math.round((targetFreq * analyser.fftSize) / sampleRate)
 
       let consecutiveDetections = 0
@@ -69,21 +70,21 @@ export default function UltrasonicReceiver() {
         analyserRef.current.getByteFrequencyData(dataArray)
         
         // Check the amplitude at the target frequency bin
-        // Also check nearby bins to account for slight frequency shifts
+        // Also check nearby bins to account for slight frequency shifts (+- 8 bins)
         let maxAmplitude = 0
-        for (let i = Math.max(0, binIndex - 2); i <= Math.min(bufferLength - 1, binIndex + 2); i++) {
+        for (let i = Math.max(0, binIndex - 8); i <= Math.min(bufferLength - 1, binIndex + 8); i++) {
           if (dataArray[i] > maxAmplitude) {
             maxAmplitude = dataArray[i]
           }
         }
         
-        if (maxAmplitude > 150) { // Threshold for detection
+        if (maxAmplitude > 70) { // Lower threshold for detection (was 150)
           consecutiveDetections++
         } else {
           consecutiveDetections = 0
         }
         
-        if (consecutiveDetections > 5) {
+        if (consecutiveDetections > 3) { // Require fewer consecutive detections (was 5)
           // Detected!
           setStatus('detected')
           setMessage('Ultrasonic signal detected! Logging attendance...')
