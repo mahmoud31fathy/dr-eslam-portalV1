@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { startSession, stopSession } from '@/app/admin/actions'
 import ScannerComponent from '@/app/scanner/ScannerComponent'
 import UltrasonicBroadcaster from '@/components/UltrasonicBroadcaster'
+import { createClient } from '@/utils/supabase/client'
 
 export default function ClassScannerView({ 
   classData, 
@@ -20,6 +21,43 @@ export default function ClassScannerView({
       return [student, ...prev]
     })
   }
+
+  useEffect(() => {
+    if (!activeSession) return
+    const supabase = createClient()
+
+    const channel = supabase
+      .channel('realtime_attendance')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'attendance_records',
+        filter: `session_id=eq.${activeSession.id}`
+      }, async (payload) => {
+        // Fetch profile to populate UI
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, full_name, level, major')
+          .eq('id', payload.new.student_id)
+          .single()
+
+        if (profile) {
+          handleScan({
+            id: profile.id,
+            name: profile.full_name,
+            level: profile.level,
+            major: profile.major,
+            isCheater: payload.new.is_flagged,
+            flagReason: payload.new.flag_reason
+          })
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [activeSession])
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
